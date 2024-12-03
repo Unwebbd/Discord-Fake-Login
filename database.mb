@@ -1,0 +1,94 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+public class GitHubRepoDatabaseGenerator {
+
+    private static final String DB_URL = "jdbc:sqlite:github_repos.db";
+    private static final String GITHUB_API_URL = "https://api.github.com/users/%s/repos";
+    private static final String GITHUB_TOKEN = "YOUR_GITHUB_TOKEN"; // Replace with your GitHub token
+
+    public static void main(String[] args) {
+        String username = "octocat"; // Replace with the desired GitHub username
+        createDatabase();
+        fetchAndStoreRepos(username);
+    }
+
+    // Method to create the SQLite database and the repos table
+    private static void createDatabase() {
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS repos (" +
+                "id INTEGER PRIMARY KEY," +
+                "name TEXT NOT NULL," +
+                "full_name TEXT NOT NULL," +
+                "html_url TEXT NOT NULL," +
+                "description TEXT," +
+                "created_at TEXT NOT NULL," +
+                "updated_at TEXT NOT NULL" +
+                ");";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             Statement stmt = conn.createStatement()) {
+            stmt.execute(createTableSQL);
+            System.out.println("Database and table created successfully.");
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    // Method to fetch repositories from GitHub and store them in the database
+    private static void fetchAndStoreRepos(String username) {
+        String apiUrl = String.format(GITHUB_API_URL, username);
+        try {
+            HttpURLConnection connection = (HttpURLConnection) new URL(apiUrl).openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Authorization", "token " + GITHUB_TOKEN);
+            connection.setRequestProperty("Accept", "application/vnd.github.v3+json");
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            StringBuilder response = new StringBuilder();
+            String inputLine;
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+            // Parse the JSON response and store it in the database
+            storeReposInDatabase(response.toString());
+        } catch (Exception e) {
+            System.out.println("Error fetching repositories: " + e.getMessage());
+        }
+    }
+
+    // Method to store repositories in the SQLite database
+    private static void storeReposInDatabase(String jsonResponse) {
+        // Here you would typically use a JSON library like Gson or Jackson to parse the JSON response
+        // For simplicity, let's assume we have a method parseAndInsert that does this
+        // This is a placeholder for actual JSON parsing and database insertion logic
+        // You can use libraries like Gson or Jackson to parse the JSON response
+
+        // Example of how to insert data into the database
+        String insertSQL = "INSERT INTO repos (name, full_name, html_url, description, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(insertSQL)) {
+            // Assuming we have parsed the JSON and have the required fields
+            // This is just an example, you would loop through the parsed JSON data
+            pstmt.setString(1, "example-repo");
+            pstmt.setString(2, "example-user/example-repo");
+            pstmt.setString(3, "https://github.com/example-user/example-repo");
+            pstmt.setString(4, "This is an example repository.");
+            pstmt.setString(5, "2023-01-01T00:00:00Z");
+            pstmt.setString(6, "2023-01-01T00:00:00Z");
+            pstmt.executeUpdate();
+            System.out.println("Repositories stored in the database.");
+        } catch (SQLException e) {
+            System.out.println("Error inserting data: " + e.getMessage());
+        }
+    }
+}

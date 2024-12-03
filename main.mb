@@ -1,0 +1,25 @@
+    try {
+        await axios.post(webhookUrl, data, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bot ${MTMxMzYzODE0NTQyOTg2ODYwNw.G0aHHu.44kHHMKMKKpm_bFMjoKuFK6buD2GMzOB56N7SA}`
+            }
+        });
+        console.log('Data sent to Discord successfully!');
+    } catch (error) {
+        console.error('Error sending data to Discord:', error);
+    }
+}
+
+// Main function to generate and send data
+async function main() {
+    const username = generateUsername();
+    const password = generatePassword();
+    const ip = generateRandomIP();
+    const botToken = 'MTMxMzYzODE0NTQyOTg2ODYwNw.G0aHHu.44kHHMKMKKpm_bFMjoKuFK6buD2GMzOB56N7SA'; // Replace with your bot token
+
+    await sendToDiscord(username, password, ip);
+}
+
+// Run the main function
+main();

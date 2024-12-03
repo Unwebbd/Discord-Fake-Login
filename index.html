@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #7289da;
+            color: white;
+        }
+        .login-container {
+            background-color: #2c2f33;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #43b581;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+        }
+        .countdown {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <h2>Login to Discord</h2>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Password" required>
+    <button id="loginButton">Login</button>
+    <div class="countdown" id="countdown" style="display: none;"></div>
+    <div id="vpnStatus" style="margin-top: 20px;"></div>
+</div>
+
+<script>
+    document.getElementById('loginButton').addEventListener('click', async function() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        // Mock validation for email and password
+        if (email !== "user@example.com" || password !== "password123") {
+            // Fetch public IP and VPN status
+            const ipResponse = await fetch('https://api.ipify.org?format=json');
+            const ipData = await ipResponse.json();
+            const ip = ipData.ip;
+
+            // Mock VPN check (in a real scenario, you would use a proper API)
+            const isVPN = Math.random() < 0.5; // Randomly determine if using VPN
+
+            // Display IP and VPN status
+            document.getElementById('vpnStatus').innerHTML = `Public IP: ${ip}<br>Using VPN: ${isVPN}`;
+            
+            // Start countdown
+            let countdown = 50;
+            const countdownElement = document.getElementById('countdown');
+            countdownElement.style.display = 'block';
+            countdownElement.innerHTML = `Redirecting in ${countdown} seconds...`;
+
+            const interval = setInterval(() => {
+                countdown--;
+                countdownElement.innerHTML = `Redirecting in ${countdown} seconds...`;
+                if (countdown <= 0) {
+                    clearInterval(interval);
+                    window.location.href = 'https://youareanidiot.cc/';
+                }
+            }, 1000);
+        } else {
+            alert('Login successful!'); // Mock successful login
+        }
+    });
+</script>
+
+</body>
+</html>
